@@ -1,0 +1,286 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>CreateDataAUGFromAudio.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="CreateDataAUGFromAudio.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>CreateDataAUGFromAudio.m</h1><pre class="codeinput"><span class="keyword">function</span> dataNew=CreateDataAUGFromAudio(nummp3,typeAgument,label)
+fs = 48000;
+<span class="comment">% CREATEDATAAUGFROMAUDIO  Spectrogram augmentation directly from audio</span>
+<span class="comment">%   files.</span>
+<span class="comment">%   dataNew=CREATEDATAAUGFROMAUDIO(nummp3,typeAgument,label)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   nummp3: list of files (e.g. from command DIR), a given dataset of audio</span>
+<span class="comment">%       signal</span>
+<span class="comment">%</span>
+<span class="comment">%   typeAgument: string, one of the available augmentation methods:</span>
+<span class="comment">%   - 'wowResampling', for more information type: help applyWowResampling</span>
+<span class="comment">%   - 'noise', for more information type: help applyNoise</span>
+<span class="comment">%   - 'clipping', for more information type: help applyClipping</span>
+<span class="comment">%   - 'speedUp', for more information type: help applySpeedUp</span>
+<span class="comment">%   - 'aliasing', for more information type: help applyAliasing</span>
+<span class="comment">%   - 'harmonicDistortion', for more information type: help applyHarmonicDistortion</span>
+<span class="comment">%   - 'gain', for more information type: help applyGain</span>
+<span class="comment">%   - 'randTimeShift', for more information type: help applyrandTimeShift</span>
+<span class="comment">%   - 'soundMix', for more information type: help applySoundMix</span>
+<span class="comment">%   - 'dynamicRange', for more information type: help applyDynamicRangeCompressor</span>
+<span class="comment">%   - 'pitchShift', for more information type: help applyPitchShift</span>
+<span class="comment">%   - 'impulseResponse', for more information type: help applyImpulseResponse</span>
+<span class="comment">%   - 'delay', for more information type: help applyDelay</span>
+<span class="comment">%   - 'lowpassFilter', for more information type: help applyLowpassFilter</span>
+<span class="comment">%   - 'highpassFilter', for more information type: help applyHighpassFilter</span>
+<span class="comment">%</span>
+<span class="comment">%   label: array, class labels for the audio files in nummp3</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   dataNew: cell array, containing one cell for each augmentation</span>
+<span class="comment">%   technique. Each cell contains the augmented version of the audio files</span>
+<span class="comment">%   included in nummp3</span>
+
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'wowResampling'</span>)
+    parameter.minIntensityOfChange = 3;
+    parameter.maxIntensityOfChange = 3;
+    parameter.minFrequencyOfChange = 2;
+    parameter.maxFrequencyOfChange = 2;   <span class="comment">% min and max intensities and frequencies are set to be the same</span>
+    [dataNew, fs] = applyWowResampling(nummp3, parameter, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'noise'</span>)
+    snrRatio = 10;
+    <span class="comment">% min and max ratios are the same</span>
+    [dataNew, fs] = applyNoise(nummp3, snrRatio, snrRatio, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'clipping'</span>)
+    percentOfSamples = 10;
+    <span class="comment">% min and max percent of samples are set to be the same</span>
+    [dataNew, fs] = applyClipping(nummp3, percentOfSamples, percentOfSamples, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'speedUp'</span>)
+    percentChange = 15;
+    <span class="comment">% min and max percents of change are set to be the same</span>
+    [dataNew, fs] = applySpeedUp(nummp3, percentChange, percentChange, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'aliasing'</span>)
+    dsFrequency = 40000;
+    <span class="comment">% min and max frequencies are set to be the same</span>
+    [dataNew, fs] = applyAliasing(nummp3, dsFrequency, dsFrequency, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'harmonicDistortion'</span>)
+    nApplications = 5;
+    [dataNew, fs] = applyHarmonicDistortion(nummp3, nApplications, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'gain'</span>)
+    decibel = 10;
+    <span class="comment">% min and max gain decibels are set to be the same</span>
+    [dataNew, fs] = applyGain(nummp3, decibel, decibel, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'randTimeShift'</span>)
+    [dataNew, fs] = applyRandTimeShift(nummp3, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'soundMix'</span>)
+    [dataNew, fs] = applySoundMix(nummp3,label, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'dynamicRange'</span>)
+	[dataNew, fs] = applyDynamicRangeCompressor(nummp3,[], fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'pitchShift'</span>)
+    decibel = 2;
+    <span class="comment">% min and max shifts are set to be the same</span>
+	[dataNew, fs] = applyPitchShift(nummp3,decibel,decibel, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'impulseResponse'</span>)
+	[dataNew, fs] = applyImpulseResponse(nummp3,{<span class="string">'GreatHall1'</span>}, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'delay'</span>)
+    <span class="comment">% min and max delays are set to be the same</span>
+    nOfZeros = 100;
+	[dataNew, fs] = applyDelay(nummp3,nOfZeros,nOfZeros, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'lowpassFilter'</span>)
+	[dataNew, fs] = applyLowpassFilter(nummp3,4000,2000, fs);
+<span class="keyword">end</span>
+<span class="keyword">if</span> strcmp(typeAgument,<span class="string">'highpassFilter'</span>)
+	[dataNew, fs] = applyHighpassFilter(nummp3,500,4000, fs);
+<span class="keyword">end</span>
+
+<span class="comment">% check isnan &amp; is inf</span>
+<span class="keyword">for</span> j=1:length(dataNew)
+    dataNew{j}(find(isnan(dataNew{j})))=0;
+    dataNew{j}(find(isinf(dataNew{j})))=0;
+<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% CreateDataAUGFromAudio.m
+
+function dataNew=CreateDataAUGFromAudio(nummp3,typeAgument,label)
+fs = 48000;
+% CREATEDATAAUGFROMAUDIO  Spectrogram augmentation directly from audio
+%   files.
+%   dataNew=CREATEDATAAUGFROMAUDIO(nummp3,typeAgument,label)
+%   
+%   Input
+%   nummp3: list of files (e.g. from command DIR), a given dataset of audio
+%       signal
+%
+%   typeAgument: string, one of the available augmentation methods:
+%   - 'wowResampling', for more information type: help applyWowResampling
+%   - 'noise', for more information type: help applyNoise
+%   - 'clipping', for more information type: help applyClipping
+%   - 'speedUp', for more information type: help applySpeedUp
+%   - 'aliasing', for more information type: help applyAliasing
+%   - 'harmonicDistortion', for more information type: help applyHarmonicDistortion
+%   - 'gain', for more information type: help applyGain
+%   - 'randTimeShift', for more information type: help applyrandTimeShift
+%   - 'soundMix', for more information type: help applySoundMix
+%   - 'dynamicRange', for more information type: help applyDynamicRangeCompressor
+%   - 'pitchShift', for more information type: help applyPitchShift
+%   - 'impulseResponse', for more information type: help applyImpulseResponse
+%   - 'delay', for more information type: help applyDelay
+%   - 'lowpassFilter', for more information type: help applyLowpassFilter
+%   - 'highpassFilter', for more information type: help applyHighpassFilter
+%   
+%   label: array, class labels for the audio files in nummp3
+%
+%   Output
+%   dataNew: cell array, containing one cell for each augmentation
+%   technique. Each cell contains the augmented version of the audio files
+%   included in nummp3
+
+if strcmp(typeAgument,'wowResampling')
+    parameter.minIntensityOfChange = 3;
+    parameter.maxIntensityOfChange = 3;
+    parameter.minFrequencyOfChange = 2;
+    parameter.maxFrequencyOfChange = 2;   % min and max intensities and frequencies are set to be the same
+    [dataNew, fs] = applyWowResampling(nummp3, parameter, fs);
+end
+if strcmp(typeAgument,'noise')
+    snrRatio = 10;
+    % min and max ratios are the same
+    [dataNew, fs] = applyNoise(nummp3, snrRatio, snrRatio, fs);
+end
+if strcmp(typeAgument,'clipping')
+    percentOfSamples = 10;
+    % min and max percent of samples are set to be the same
+    [dataNew, fs] = applyClipping(nummp3, percentOfSamples, percentOfSamples, fs);
+end
+if strcmp(typeAgument,'speedUp')
+    percentChange = 15;
+    % min and max percents of change are set to be the same
+    [dataNew, fs] = applySpeedUp(nummp3, percentChange, percentChange, fs);
+end
+if strcmp(typeAgument,'aliasing')
+    dsFrequency = 40000;
+    % min and max frequencies are set to be the same
+    [dataNew, fs] = applyAliasing(nummp3, dsFrequency, dsFrequency, fs);
+end
+if strcmp(typeAgument,'harmonicDistortion')
+    nApplications = 5;
+    [dataNew, fs] = applyHarmonicDistortion(nummp3, nApplications, fs);
+end
+if strcmp(typeAgument,'gain')
+    decibel = 10;
+    % min and max gain decibels are set to be the same
+    [dataNew, fs] = applyGain(nummp3, decibel, decibel, fs);
+end
+if strcmp(typeAgument,'randTimeShift')
+    [dataNew, fs] = applyRandTimeShift(nummp3, fs);
+end
+if strcmp(typeAgument,'soundMix')
+    [dataNew, fs] = applySoundMix(nummp3,label, fs);
+end
+if strcmp(typeAgument,'dynamicRange')
+	[dataNew, fs] = applyDynamicRangeCompressor(nummp3,[], fs);
+end
+if strcmp(typeAgument,'pitchShift')
+    decibel = 2;
+    % min and max shifts are set to be the same
+	[dataNew, fs] = applyPitchShift(nummp3,decibel,decibel, fs);
+end
+if strcmp(typeAgument,'impulseResponse')
+	[dataNew, fs] = applyImpulseResponse(nummp3,{'GreatHall1'}, fs);
+end
+if strcmp(typeAgument,'delay')
+    % min and max delays are set to be the same
+    nOfZeros = 100;
+	[dataNew, fs] = applyDelay(nummp3,nOfZeros,nOfZeros, fs);
+end
+if strcmp(typeAgument,'lowpassFilter')
+	[dataNew, fs] = applyLowpassFilter(nummp3,4000,2000, fs);
+end
+if strcmp(typeAgument,'highpassFilter')
+	[dataNew, fs] = applyHighpassFilter(nummp3,500,4000, fs);
+end
+
+% check isnan & is inf
+for j=1:length(dataNew)
+    dataNew{j}(find(isnan(dataNew{j})))=0;
+    dataNew{j}(find(isinf(dataNew{j})))=0;
+end
+
+end
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,138 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Showing augmentation techniques for audio signals</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="plotTestAugmentation.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Showing augmentation techniques for audio signals</h1><!--introduction--><p>This script plots examples of the augmentation results computed by the testAugmentation.m script</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Load original spectrograms for comparison with the augmented ones</a></li><li><a href="#2">Load the augmented datasets created and saved by testAugmentation.m</a></li><li><a href="#3">Chose an image (1-6) for which the augmented spectrograms will be shown</a></li><li><a href="#5">Plots the spectrograms from the augmented audio signals</a></li><li><a href="#6">Plot the augmented spectrograms co,mputed from the original spectrograms obtained from the original audio signals</a></li></ul></div><h2 id="1">Load original spectrograms for comparison with the augmented ones</h2><pre class="codeinput">load(<span class="string">'inputAugmentationFromSpectrograms.mat'</span>, <span class="string">'spectrogramsOrigFromAudio'</span>)
+</pre><h2 id="2">Load the augmented datasets created and saved by testAugmentation.m</h2><div><ul><li>./examples/AugmentedImages/AugmentedFromAudio.mat contains the spectrograms created from the augmentation of the raw audio signals included in the test dataset ./examples/SmallInputDatasets/inputAugmentationFromAudio.mat (original mp3 files in ./examples/OriginalAudioFiles/)</li><li>./examples/AugmentedImages/AugmentedFromImages.mat contains the spectrograms created by augmentation of the original spectrograms included in ./examples/SmallInputDatasets/inputAugmentationFromSpectrograms.mat</li></ul></div><pre class="codeinput">load <span class="string">AugmentedFromAudio</span>
+load <span class="string">AugmentedFromImages</span>
+</pre><h2 id="3">Chose an image (1-6) for which the augmented spectrograms will be shown</h2><pre class="codeinput">imageToAugment = 1;
+
+<span class="keyword">if</span> imageToAugment&gt;0 &amp;&amp; imageToAugment&lt;=6
+</pre><h2 id="5">Plots the spectrograms from the augmented audio signals</h2><pre class="codeinput">    figure(imageToAugment*100), subplot(3,4,1), imshow(spectrogramsOrigFromAudio{imageToAugment},[]), title(<span class="string">'Original'</span>)
+    augmLabelsFromAudio = {<span class="string">'wowResampling'</span> <span class="string">'noise'</span> <span class="string">'clipping'</span> <span class="string">'speedUp'</span> <span class="string">'harmonicDistortion'</span> <span class="string">'gain'</span> <span class="string">'randTimeShift'</span> <span class="string">'soundMix'</span> <span class="string">'dynamicRange'</span> <span class="string">'pitchShift'</span> <span class="string">'lowpassFilter'</span>};
+    <span class="keyword">for</span> j = 1:11
+        figure(imageToAugment*100), subplot(3,4,j+1), imshow(ImNFromAudio{j}{imageToAugment},[]), title(augmLabelsFromAudio{j})
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="plotTestAugmentation_01.png" alt=""> <h2 id="6">Plot the augmented spectrograms co,mputed from the original spectrograms obtained from the original audio signals</h2><pre class="codeinput">    figure(imageToAugment*100+1), subplot(2,4,1), imshow(spectrogramsOrigFromAudio{imageToAugment},[]), title(<span class="string">'Original'</span>)
+    augmLabelsFromImage = {<span class="string">'frequencyMasking'</span>, <span class="string">'SameClassSum'</span>, <span class="string">'VTLN'</span>, <span class="string">'EMDA'</span>, <span class="string">'noiseS'</span>, <span class="string">'timeShift'</span>, <span class="string">'imageWarp'</span>};
+    <span class="keyword">for</span> j = 1:7 <span class="comment">%augmentation techniques</span>
+        <span class="keyword">if</span> mod(imageToAugment,2)==0 &amp;&amp; (j==2 || j==4)
+            figure(imageToAugment*100+1), subplot(2,4,j+1), imshow(ImNFromImage{j}{imageToAugment-1},[]), title(augmLabelsFromImage{j})
+        <span class="keyword">else</span>
+            figure(imageToAugment*100+1), subplot(2,4,j+1), imshow(ImNFromImage{j}{imageToAugment},[]), title(augmLabelsFromImage{j})
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="plotTestAugmentation_02.png" alt=""> <pre class="codeinput"><span class="keyword">else</span>
+    disp(<span class="string">'Not enough images in the small testing datasets! imageToAugment max 6! '</span>)
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Showing augmentation techniques for audio signals
+% This script plots examples of the augmentation results computed by the
+% testAugmentation.m script
+
+%% Load original spectrograms for comparison with the augmented ones
+load('inputAugmentationFromSpectrograms.mat', 'spectrogramsOrigFromAudio')
+
+%% Load the augmented datasets created and saved by testAugmentation.m
+% * ./examples/AugmentedImages/AugmentedFromAudio.mat contains the spectrograms created from the
+% augmentation of the raw audio signals included in the test dataset
+% ./examples/SmallInputDatasets/inputAugmentationFromAudio.mat (original mp3 files in
+% ./examples/OriginalAudioFiles/)
+% * ./examples/AugmentedImages/AugmentedFromImages.mat contains the spectrograms
+% created by augmentation of the original spectrograms included in
+% ./examples/SmallInputDatasets/inputAugmentationFromSpectrograms.mat
+load AugmentedFromAudio
+load AugmentedFromImages
+
+%% Chose an image (1-6) for which the augmented spectrograms will be shown
+imageToAugment = 1;
+
+if imageToAugment>0 && imageToAugment<=6
+    
+    %% Plots the spectrograms from the augmented audio signals
+    figure(imageToAugment*100), subplot(3,4,1), imshow(spectrogramsOrigFromAudio{imageToAugment},[]), title('Original')
+    augmLabelsFromAudio = {'wowResampling' 'noise' 'clipping' 'speedUp' 'harmonicDistortion' 'gain' 'randTimeShift' 'soundMix' 'dynamicRange' 'pitchShift' 'lowpassFilter'};
+    for j = 1:11
+        figure(imageToAugment*100), subplot(3,4,j+1), imshow(ImNFromAudio{j}{imageToAugment},[]), title(augmLabelsFromAudio{j})
+    end
+    
+    %% Plot the augmented spectrograms co,mputed from the original spectrograms obtained from the original audio signals
+    figure(imageToAugment*100+1), subplot(2,4,1), imshow(spectrogramsOrigFromAudio{imageToAugment},[]), title('Original')
+    augmLabelsFromImage = {'frequencyMasking', 'SameClassSum', 'VTLN', 'EMDA', 'noiseS', 'timeShift', 'imageWarp'};
+    for j = 1:7 %augmentation techniques
+        if mod(imageToAugment,2)==0 && (j==2 || j==4)
+            figure(imageToAugment*100+1), subplot(2,4,j+1), imshow(ImNFromImage{j}{imageToAugment-1},[]), title(augmLabelsFromImage{j})
+        else
+            figure(imageToAugment*100+1), subplot(2,4,j+1), imshow(ImNFromImage{j}{imageToAugment},[]), title(augmLabelsFromImage{j})
+        end
+    end
+else
+    disp('Not enough images in the small testing datasets! imageToAugment max 6! ')
+end
+##### SOURCE END #####
+--></body></html>

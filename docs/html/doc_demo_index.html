@@ -1,0 +1,108 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Demos</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-02-06"><meta name="DC.source" content="doc_demo_index.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Demos</h1><!--introduction--><p>We provide three demos of a neural network training using the data augmentation techniques the we implemented. We train AlexNet on the ESC-50 dataset. The first training is on the original data and is used as a baseline. Besides, we train two more network on, respectively, audio augmented data and spectrogram augmented data.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">The ESC-50 dataset</a></li><li><a href="#2">Baseline method</a></li><li><a href="#3">Raw Audio Augmentation</a></li><li><a href="#4">Spectrogram Augmentation</a></li></ul></div><h2 id="1">The ESC-50 dataset</h2><p>The ESC-50 dataset is made by 2000 audio samples divided in 50 classes containing 40 samples per class. Each audio file is about 5 seconds long. The dataset is divided into 5 different folds and the testing protocol is cross fold validation. It can be downloaded at <a href="https://github.com/karolpiczak/ESC-50">https://github.com/karolpiczak/ESC-50</a>. In order to use the demos, the dataset must be included in a folder name ESC-50.</p><h2 id="2">Baseline method</h2><p><b>createOriginalData.m</b> creates the spectrograms of the original audio files and store them in a folder named <b>originalSpectrograms</b>. In this folder the data is organized in 5 subfolders, i.e: one for every fold. Each of these folders also contain 50 subfolders, one for every class. The function <b>demoBaseline.m</b> train AlexNet on those spectrograms and test the results on every fold.</p><h2 id="3">Raw Audio Augmentation</h2><p><b>createAudioSamples.m</b> generates new audio samples from the original audio data. After that, the samples are turned into spectrograms and saved in a folder named <b>audioAugmentedData</b>. The function <b>demoAudioAugmentation.m</b> train AlexNet on the augmented audio samples and test the network on the original data, using the same 5 fold validation.</p><h2 id="4">Spectrogram Augmentation</h2><p><b>createSpectrogramSamples.m</b> transform the raw audio signals into spectrograms and then applies data augmentation. The augmented data are saved in a folder named <b>imageAugmentedData</b>. The function <b>demoSpectrogramAugmentation.m</b> train AlexNet on the augmented spectrograms and test the network on the original data, using the same 5 fold validation.</p><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Demos
+% We provide three demos of a neural network training using the data
+% augmentation techniques the we implemented. We train AlexNet on the
+% ESC-50 dataset. The first training is on the original data and is used as
+% a baseline. Besides, we train two more network on, respectively, audio
+% augmented data and spectrogram augmented data.
+
+%% The ESC-50 dataset
+% The ESC-50 dataset is made by 2000 audio samples divided in 50 classes
+% containing 40 samples per class. Each audio file is about 5 seconds long.
+% The dataset is divided into 5 different folds and the testing protocol is
+% cross fold validation. It can be downloaded at
+% https://github.com/karolpiczak/ESC-50. In order to use the demos, the 
+% dataset must be included in a folder name ESC-50.
+
+%% Baseline method
+% *createOriginalData.m* creates the spectrograms of the original audio
+% files and store them in a folder named *originalSpectrograms*. In this
+% folder the data is organized in 5 subfolders, i.e: one for every fold.
+% Each of these folders also contain 50 subfolders, one for every class.
+% The function *demoBaseline.m* train AlexNet on those spectrograms and
+% test the results on every fold.
+%% Raw Audio Augmentation
+% *createAudioSamples.m* generates new audio samples from the original
+% audio data. After that, the samples are turned into spectrograms and
+% saved in a folder named *audioAugmentedData*.
+% The function *demoAudioAugmentation.m* train AlexNet on the augmented
+% audio samples and test the network on the original data, using the same 5
+% fold validation.
+%% Spectrogram Augmentation
+% *createSpectrogramSamples.m* transform the raw audio signals into
+% spectrograms and then applies data augmentation. The augmented data are
+% saved in a folder named *imageAugmentedData*.
+% The function *demoSpectrogramAugmentation.m* train AlexNet on the augmented
+% spectrograms and test the network on the original data, using the same 5
+% fold validation.
+##### SOURCE END #####
+--></body></html>

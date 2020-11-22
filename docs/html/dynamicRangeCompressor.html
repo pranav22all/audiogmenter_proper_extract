@@ -1,0 +1,374 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>dynamicRangeCompressor.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-28"><meta name="DC.source" content="dynamicRangeCompressor.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>dynamicRangeCompressor.m</h1><pre class="codeinput"><span class="keyword">function</span> audioOut = dynamicRangeCompressor(audio,parameter)
+<span class="comment">%DYNAMICRANGECOMPRESSOR applies a dynamic range compression (DRC) with</span>
+<span class="comment">%   default or custom parameters.</span>
+<span class="comment">%   IN THIS IMPLEMENTATION, THE SETTINGS ARE HARD CODED TO THE 'MUSIC'</span>
+<span class="comment">%   SETTINGS</span>
+<span class="comment">%</span>
+<span class="comment">%   audioOut = dynamicRangeCompressor(audio,parameter)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   audio: the raw audio signal</span>
+<span class="comment">%</span>
+<span class="comment">%   parameters:</span>
+<span class="comment">%       useIntenalSettings: if equals to 1, it uses the default settings,</span>
+<span class="comment">%           otherwise custom settings (default setting =1)</span>
+<span class="comment">%       intenalSettings: select type of DRC from: 'music', 'film' or</span>
+<span class="comment">%           'speech' (default setting = music)</span>
+<span class="comment">%</span>
+<span class="comment">%   Customizable parameters</span>
+<span class="comment">%    - maxBoost: boost (dB) for the intensities in the region below the</span>
+<span class="comment">%       BOOST region</span>
+<span class="comment">%    - boostRangeBegin: starting intensity for the BOOST region</span>
+<span class="comment">%    - boostRangeRatio: boost ratio for then intensities within the BOOST</span>
+<span class="comment">%       region</span>
+<span class="comment">%    - nullRangeBegin: starting intensity for the NULL region where no</span>
+<span class="comment">%       boost is applied. The BOOST region ends here</span>
+<span class="comment">%    - earlyCutRangeBegin: starting intensity for the EARLY CUT region</span>
+<span class="comment">%       where intensities are attenuated by the earlyCutRangeRatio. The</span>
+<span class="comment">%       NULL region ends here</span>
+<span class="comment">%    - earlyCutRangeRatio: attenuation ratio for then intensities within</span>
+<span class="comment">%       the EARLY CUT region</span>
+<span class="comment">%    - cutRangeBegin: starting intensity for the CUT region where the</span>
+<span class="comment">%       intensities are attenuated by the cutRangeRatio. The EARLY CUT</span>
+<span class="comment">%       region ends here</span>
+<span class="comment">%    - cutRangeRatio: attenuation ratio for then intensities in the CUT</span>
+<span class="comment">%       region</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   audioOut: compressed audio signal</span>
+<span class="comment">%</span>
+<span class="comment">%   DRC was used in https://ieeexplore.ieee.org/document/7829341</span>
+<span class="comment">%   The original Dolby documentation is available at</span>
+<span class="comment">%   https://www.dolby.com/us/en/technologies/standards-and-practices-for-authoring-dolby-digital-and-dolby-e-bitstreams.pdf</span>
+
+<span class="keyword">if</span> nargin&lt;2
+    parameter=[];
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isfield(parameter,<span class="string">'useIntenalSettings'</span>)==0   <span class="comment">%set useIntenalSettings parameter to 1 if you want use the internal settings or use 0 if you want use your settings</span>
+    parameter.useIntenalSettings = 1;
+<span class="keyword">end</span>
+<span class="keyword">if</span>( parameter.useIntenalSettings == 1)
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'intenalSettings'</span>)==0  <span class="comment">%decide the type of DRC between audio, film and speach</span>
+        parameter.intenalSettings = <span class="string">'music'</span>;
+    <span class="keyword">end</span>
+    <span class="keyword">switch</span> parameter.intenalSettings
+        <span class="keyword">case</span> <span class="string">'music'</span>    <span class="comment">%it use the music standard setting from dolby-e standard</span>
+            maxBoost=12;
+            boostRangeBegin=-55;
+            boostRangeRatio=2;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+        <span class="keyword">case</span> <span class="string">'film'</span>     <span class="comment">%it use the film standard setting from dolby-e standard</span>
+            maxBoost=4;
+            boostRangeBegin=-43;
+            boostRangeRatio=2;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+        <span class="keyword">case</span> <span class="string">'speech'</span>   <span class="comment">%it use the speech setting from dolby-e standard</span>
+            maxBoost=15;
+            boostRangeBegin=-50;
+            boostRangeRatio=5;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+    <span class="keyword">end</span>
+<span class="keyword">else</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'maxBoost'</span>)==0
+        error(<span class="string">'Please specify maxBoost data'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'boostRangeBegin'</span>)==0
+        error(<span class="string">'Please specify boostRangeBegin data'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'nullRangeBegin'</span>)==0
+        error(<span class="string">'Please specify nullRangeBegin data'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'boostRangeRatio'</span>)==0
+        error(<span class="string">'Please specify boostRangeRatio data'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'earlyCutRangeBegin'</span>)==0
+        parameter.earlyCutRangeBegin = 0;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'earlyCutRangeRatio'</span>)==0
+        parameter.earlyCutRangeRatio = 0;
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'cutRangeBegin'</span>)==0
+        error(<span class="string">'Please specify cutRangeBegin data'</span>);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> isfield(parameter,<span class="string">'cutRangeRatio'</span>)==0
+        error(<span class="string">'Please specify cutRangeRatio data'</span>);
+    <span class="keyword">end</span>
+    maxBoost=parameter.maxBoost;
+    boostRangeBegin= parameter.boostRangeBegin;
+    boostRangeRatio=parameter.boostRangeRatio;
+    nullRangeBegin=parameter.nullRangeBegin;
+    <span class="keyword">if</span> parameter.earlyCutRangeBegin==0    <span class="comment">%in the case the personal setting doesn't have an early cut range</span>
+        earlyCutRangeBegin=parameter.cutRangeBegin;
+        earlyCutRangeRatio=parameter.cutRangeRatio;
+        cutRangeBegin=0;
+        cutRangeRatio=0;
+    <span class="keyword">else</span>
+        earlyCutRangeBegin=parameter.earlyCutRangeBegin;
+        earlyCutRangeRatio=parameter.earlyCutRangeRatio;
+        cutRangeBegin=parameter.cutRangeBegin;
+        cutRangeRatio=parameter.cutRangeRatio;
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+audioOut=zeros(size(audio,1),size(audio,2));
+<span class="keyword">for</span> i=1:size(audio,2)
+    oldY=20*log10(abs(audio(:,i)));   <span class="comment">%old track value</span>
+    y=oldY;      <span class="comment">%new track value</span>
+    <span class="keyword">for</span> j=1:length(y)
+        <span class="keyword">if</span> y(j)&lt;=nullRangeBegin      <span class="comment">%apply boost range</span>
+            y(j) = min(y(j),boostRangeBegin)+(1/boostRangeRatio)*max(0,y(j)-boostRangeBegin)+maxBoost;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> cutRangeBegin~=0 <span class="comment">%in the case the setting have an early cut range</span>
+    y = min(y,cutRangeBegin)+(1/(cutRangeRatio/earlyCutRangeRatio))*max(0,y-cutRangeBegin);     <span class="comment">%apply cut range</span>
+    <span class="keyword">end</span>
+    y = min(y,earlyCutRangeBegin)+(1/earlyCutRangeRatio)*max(0,y-earlyCutRangeBegin);       <span class="comment">%apply early cut range</span>
+
+    gain=y-oldY;    <span class="comment">%calcolate the gain of each element</span>
+    <span class="keyword">for</span> j=1:length(gain)    <span class="comment">%apply the gain</span>
+        <span class="keyword">if</span> isnan(gain(j))
+            audioOut(j,i)=0;
+        <span class="keyword">else</span>
+            audioOut(j,i)=audio(j,i)*(10.^(gain(j)./20));
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% dynamicRangeCompressor.m
+
+function audioOut = dynamicRangeCompressor(audio,parameter)
+%DYNAMICRANGECOMPRESSOR applies a dynamic range compression (DRC) with 
+%   default or custom parameters.
+%   IN THIS IMPLEMENTATION, THE SETTINGS ARE HARD CODED TO THE 'MUSIC'
+%   SETTINGS
+%   
+%   audioOut = dynamicRangeCompressor(audio,parameter)
+%
+%   Input
+%   audio: the raw audio signal
+%
+%   parameters:
+%       useIntenalSettings: if equals to 1, it uses the default settings, 
+%           otherwise custom settings (default setting =1)
+%       intenalSettings: select type of DRC from: 'music', 'film' or 
+%           'speech' (default setting = music)
+%
+%   Customizable parameters
+%    - maxBoost: boost (dB) for the intensities in the region below the 
+%       BOOST region
+%    - boostRangeBegin: starting intensity for the BOOST region
+%    - boostRangeRatio: boost ratio for then intensities within the BOOST
+%       region
+%    - nullRangeBegin: starting intensity for the NULL region where no 
+%       boost is applied. The BOOST region ends here
+%    - earlyCutRangeBegin: starting intensity for the EARLY CUT region  
+%       where intensities are attenuated by the earlyCutRangeRatio. The  
+%       NULL region ends here
+%    - earlyCutRangeRatio: attenuation ratio for then intensities within 
+%       the EARLY CUT region
+%    - cutRangeBegin: starting intensity for the CUT region where the 
+%       intensities are attenuated by the cutRangeRatio. The EARLY CUT 
+%       region ends here
+%    - cutRangeRatio: attenuation ratio for then intensities in the CUT
+%       region
+%
+%   Output
+%   audioOut: compressed audio signal
+%
+%   DRC was used in https://ieeexplore.ieee.org/document/7829341
+%   The original Dolby documentation is available at 
+%   https://www.dolby.com/us/en/technologies/standards-and-practices-for-authoring-dolby-digital-and-dolby-e-bitstreams.pdf
+
+if nargin<2
+    parameter=[];
+end
+
+if isfield(parameter,'useIntenalSettings')==0   %set useIntenalSettings parameter to 1 if you want use the internal settings or use 0 if you want use your settings
+    parameter.useIntenalSettings = 1;
+end
+if( parameter.useIntenalSettings == 1)
+    if isfield(parameter,'intenalSettings')==0  %decide the type of DRC between audio, film and speach
+        parameter.intenalSettings = 'music';
+    end
+    switch parameter.intenalSettings
+        case 'music'    %it use the music standard setting from dolby-e standard
+            maxBoost=12;    
+            boostRangeBegin=-55;
+            boostRangeRatio=2;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+        case 'film'     %it use the film standard setting from dolby-e standard
+            maxBoost=4;    
+            boostRangeBegin=-43;
+            boostRangeRatio=2;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+        case 'speech'   %it use the speech setting from dolby-e standard
+            maxBoost=15;    
+            boostRangeBegin=-50;
+            boostRangeRatio=5;
+            nullRangeBegin=-31;
+            earlyCutRangeBegin=-26;
+            earlyCutRangeRatio=2;
+            cutRangeBegin=-16;
+            cutRangeRatio=20;
+    end
+else
+    if isfield(parameter,'maxBoost')==0
+        error('Please specify maxBoost data');
+    end
+    if isfield(parameter,'boostRangeBegin')==0
+        error('Please specify boostRangeBegin data');
+    end
+    if isfield(parameter,'nullRangeBegin')==0
+        error('Please specify nullRangeBegin data');
+    end
+    if isfield(parameter,'boostRangeRatio')==0
+        error('Please specify boostRangeRatio data');
+    end
+    if isfield(parameter,'earlyCutRangeBegin')==0
+        parameter.earlyCutRangeBegin = 0;
+    end
+    if isfield(parameter,'earlyCutRangeRatio')==0
+        parameter.earlyCutRangeRatio = 0;
+    end
+    if isfield(parameter,'cutRangeBegin')==0
+        error('Please specify cutRangeBegin data');
+    end
+    if isfield(parameter,'cutRangeRatio')==0
+        error('Please specify cutRangeRatio data');
+    end
+    maxBoost=parameter.maxBoost;    
+    boostRangeBegin= parameter.boostRangeBegin;
+    boostRangeRatio=parameter.boostRangeRatio;
+    nullRangeBegin=parameter.nullRangeBegin;
+    if parameter.earlyCutRangeBegin==0    %in the case the personal setting doesn't have an early cut range
+        earlyCutRangeBegin=parameter.cutRangeBegin;
+        earlyCutRangeRatio=parameter.cutRangeRatio;
+        cutRangeBegin=0;
+        cutRangeRatio=0;
+    else
+        earlyCutRangeBegin=parameter.earlyCutRangeBegin;
+        earlyCutRangeRatio=parameter.earlyCutRangeRatio;
+        cutRangeBegin=parameter.cutRangeBegin;
+        cutRangeRatio=parameter.cutRangeRatio;
+    end
+    
+end
+audioOut=zeros(size(audio,1),size(audio,2));
+for i=1:size(audio,2)
+    oldY=20*log10(abs(audio(:,i)));   %old track value
+    y=oldY;      %new track value
+    for j=1:length(y)
+        if y(j)<=nullRangeBegin      %apply boost range
+            y(j) = min(y(j),boostRangeBegin)+(1/boostRangeRatio)*max(0,y(j)-boostRangeBegin)+maxBoost;
+        end
+    end
+    if cutRangeBegin~=0 %in the case the setting have an early cut range
+    y = min(y,cutRangeBegin)+(1/(cutRangeRatio/earlyCutRangeRatio))*max(0,y-cutRangeBegin);     %apply cut range
+    end
+    y = min(y,earlyCutRangeBegin)+(1/earlyCutRangeRatio)*max(0,y-earlyCutRangeBegin);       %apply early cut range
+    
+    gain=y-oldY;    %calcolate the gain of each element
+    for j=1:length(gain)    %apply the gain
+        if isnan(gain(j))
+            audioOut(j,i)=0;
+        else
+            audioOut(j,i)=audio(j,i)*(10.^(gain(j)./20));
+        end
+    end
+end
+end
+
+
+##### SOURCE END #####
+--></body></html>

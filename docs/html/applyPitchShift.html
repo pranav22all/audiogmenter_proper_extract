@@ -1,0 +1,226 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>applyPitchShift.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="applyPitchShift.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>applyPitchShift.m</h1><p>This function uses the Matlab implementation of Phase Vocoder (D. P. W. Ellis, A Phase Vocoder in Matlab, 2002), available at <a href="https://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/">https://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/</a></p><pre class="codeinput"><span class="keyword">function</span> [outAudioNEW, fs] = applyPitchShift(audio,minSemiTone,maxSemiTone,fs)
+<span class="comment">% APPLYPITCHSHIFT applies pitch shifting in semitone to the input audio signal</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   audio: raw audio signal</span>
+<span class="comment">%   minSemiTone: minimum pitch shift value in semitones (1 tone = 2 semitones)</span>
+<span class="comment">%   maxSemiTone: maximum pitch shift value in semitones (1 tone = 2 semitones)</span>
+<span class="comment">%   fs: frequencies of the audio signals. Not required if nummp3 contains</span>
+<span class="comment">%       the audio paths.</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   outAudioNEW: the pitched-shifted audio signal</span>
+<span class="comment">%</span>
+<span class="comment">%   This function uses the phase vocoder available from https://www.ee.columbia.edu.</span>
+<span class="comment">%   The original code is included in</span>
+<span class="comment">%   ./tools/audio/pitch shift/Phase Vocoder/</span>
+
+
+<span class="comment">% Initialize data and the parameter</span>
+<span class="keyword">if</span> isa(audio,<span class="string">'struct'</span>)
+    singleInput = false;
+    nSamples = length(audio);
+    flag = true;
+<span class="keyword">elseif</span> isa(audio,<span class="string">'cell'</span>)
+    flag = false;
+    nSamples = length(audio);
+    singleInput = false;
+    data = audio;
+<span class="keyword">else</span>      <span class="comment">%the data is a single signal</span>
+    flag = false;
+    singleInput = true;
+    data = {audio};
+    fs = {fs};
+    nSamples = 1;
+<span class="keyword">end</span>
+
+<span class="keyword">parfor</span> j=1:nSamples
+    <span class="comment">% Check whether the input must be read</span>
+    <span class="keyword">if</span> flag
+        [data{j},fs{j}]=audioread(audio(j).name);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+addpath(genpath(<span class="string">'Phase Vocoder'</span>));
+<span class="keyword">parfor</span> j = 1:nSamples
+
+<span class="comment">% Computes cents to be used in che calculations of the frequency ratio</span>
+semiTone{j} = minSemiTone + rand() * (maxSemiTone - minSemiTone);
+cents{j}=abs(semiTone{j})*100;
+freqRatio{j}=2^(cents{j}/1200);
+<span class="keyword">if</span>(semiTone{j}&gt;0)
+    freqRatio{j}=1/freqRatio{j};
+<span class="keyword">end</span>
+
+<span class="comment">% Stretches the audio file to modify the pitch</span>
+outAudio{j} = pvoc(data{j}, freqRatio{j});
+
+<span class="comment">% Converts decimal number to fraction</span>
+[num{j},dem{j}]=rat(freqRatio{j});
+<span class="comment">% the number cannot be too large</span>
+<span class="keyword">while</span> num{j} &gt; 5000
+num{j}=floor(num{j}/10);
+dem{j}=floor(dem{j}/10);
+<span class="keyword">end</span>
+
+<span class="comment">% Resamples the pitched file to return to the original audio size</span>
+outAudioNEW{j} = resample(outAudio{j},num{j},dem{j});
+
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> singleInput
+    outAudioNEW = outAudioNEW{1};
+<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% applyPitchShift.m
+% This function uses the Matlab implementation of Phase Vocoder (D. P. W.
+% Ellis, A Phase Vocoder in Matlab, 2002), available at
+% <https://www.ee.columbia.edu/~dpwe/resources/matlab/pvoc/>
+
+function [outAudioNEW, fs] = applyPitchShift(audio,minSemiTone,maxSemiTone,fs)
+% APPLYPITCHSHIFT applies pitch shifting in semitone to the input audio signal
+%   Input
+%   audio: raw audio signal
+%   minSemiTone: minimum pitch shift value in semitones (1 tone = 2 semitones)
+%   maxSemiTone: maximum pitch shift value in semitones (1 tone = 2 semitones)
+%   fs: frequencies of the audio signals. Not required if nummp3 contains
+%       the audio paths.
+%
+%   Output
+%   outAudioNEW: the pitched-shifted audio signal
+%
+%   This function uses the phase vocoder available from https://www.ee.columbia.edu.
+%   The original code is included in
+%   ./tools/audio/pitch shift/Phase Vocoder/
+
+
+% Initialize data and the parameter
+if isa(audio,'struct')
+    singleInput = false;
+    nSamples = length(audio);
+    flag = true;
+elseif isa(audio,'cell')
+    flag = false;
+    nSamples = length(audio);
+    singleInput = false;
+    data = audio;
+else      %the data is a single signal
+    flag = false;
+    singleInput = true;
+    data = {audio};
+    fs = {fs};
+    nSamples = 1;
+end
+
+parfor j=1:nSamples
+    % Check whether the input must be read
+    if flag
+        [data{j},fs{j}]=audioread(audio(j).name);
+    end
+end
+
+addpath(genpath('Phase Vocoder'));
+parfor j = 1:nSamples
+
+% Computes cents to be used in che calculations of the frequency ratio
+semiTone{j} = minSemiTone + rand() * (maxSemiTone - minSemiTone);
+cents{j}=abs(semiTone{j})*100;
+freqRatio{j}=2^(cents{j}/1200);
+if(semiTone{j}>0)
+    freqRatio{j}=1/freqRatio{j};
+end
+
+% Stretches the audio file to modify the pitch
+outAudio{j} = pvoc(data{j}, freqRatio{j});
+
+% Converts decimal number to fraction
+[num{j},dem{j}]=rat(freqRatio{j});
+% the number cannot be too large
+while num{j} > 5000
+num{j}=floor(num{j}/10);
+dem{j}=floor(dem{j}/10);
+end
+
+% Resamples the pitched file to return to the original audio size
+outAudioNEW{j} = resample(outAudio{j},num{j},dem{j});
+
+end
+
+if singleInput
+    outAudioNEW = outAudioNEW{1};
+end
+
+end
+
+##### SOURCE END #####
+--></body></html>

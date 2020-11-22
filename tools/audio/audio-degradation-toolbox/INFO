@@ -1,0 +1,25 @@
+*** THE AUDIO DEGRADATION TOOLBOX ***
+
+The Audio Degradation Toolbox (ADT) consists of Matlab code for the controlled degradation of audio signals, and for the adaptation of ground-truth to the degraded audio. Main purpose is to test the robustness of audio analysis methods against certain classes of degradations of the audio quality.
+
+ADT Website: https://code.soundsoftware.ac.uk/projects/audio-degradation-toolbox
+
+The ADT was conceived and developed by Sebastian Ewert and Matthias Mauch at the Centre for Digital Music, Queen Mary, University of London.
+
+** Getting Started **
+
+Requirements: the toolbox requires Matlab and the Matlab Signal Processing Toolbox. We've tested the ADT with Matlab R2011b on Mac OSX, Matlab R2013a on Linux.
+
+Actually getting started: try the demo scripts in the root directory of this distribution.
+
+** License **
+
+The Audio Degradation Toolbox (ADT) is released under the GNU General Public License 2.0 or later. Find more information in the source files and in the file COPYING that is part of this distribution.
+
+** Credit the ADT **
+
+In addition to the license requirements:
+
+1. If you use the ADT for a publication please cite the following paper: Matthias Mauch and Sebastian Ewert, "The Audio Degradation Toolbox and its Application to Robustness Evaluation", Proceedings of the 14th International Society for Music Information Retrieval Conference (ISMIR 2013).
+2. If your use the ADT to prepare data for commercial or other public use, please credit the ADT clearly and obviously as "Powered by the Audio Degradation Toolbox, Queen Mary, University of London".
+

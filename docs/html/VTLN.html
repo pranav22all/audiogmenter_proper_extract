@@ -1,0 +1,198 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>VTLN.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-28"><meta name="DC.source" content="VTLN.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>VTLN.m</h1><pre class="codeinput"><span class="keyword">function</span> Iout = VTLN(IM,f0,fmax,rangeA)
+<span class="comment">% VTLN generates a new spectrogram image based on the Vocal Tract Lenght</span>
+<span class="comment">% Normalization (VTLN) and Perturbation (VTLP). VTLN is used to remove</span>
+<span class="comment">% speaker to speaker variability resulting from differences in vocal tract</span>
+<span class="comment">% length (Lee &amp; Rose, 1998). The frequency axis of the spectrogram of each</span>
+<span class="comment">% speaker is linearly warped using the factor a, that accounts for</span>
+<span class="comment">% the relative length of the speakers's vocal tract compared to the</span>
+<span class="comment">% canonical mean.</span>
+<span class="comment">%</span>
+<span class="comment">% This implementation takes into account also the a values for perturbation</span>
+<span class="comment">% instead of normalization, as in Jaitly &amp; Hinton, 2013)</span>
+<span class="comment">%</span>
+<span class="comment">%   Iout = VTLN(IM,f0,fmax,rangeA)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   IM: image (spectrogram)</span>
+
+<span class="comment">%   f0: empirically chosen frequency (relate to fmax)</span>
+
+<span class="comment">%   fmax: max frequency of the spectrogram</span>
+
+<span class="comment">%   rangeA: range of random factor 'a' in form of array [min max]. a should</span>
+<span class="comment">%      be between 0.8 and 1.2. If rangeA is empty then is used a random</span>
+<span class="comment">%      value between 0.9 and 1.1 (to corrupt)</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   Iout: transformed image</span>
+<span class="comment">%</span>
+<span class="comment">%   Original publications</span>
+<span class="comment">%   - (Lee &amp; Rose, 1998) DOI: 10.1109/89.650310</span>
+<span class="comment">%   - (Jaitly &amp; Hinton, 2013) https://scinapse.io/papers/2099621636</span>
+
+
+<span class="comment">%check f0 &lt;= fmax</span>
+<span class="keyword">if</span> f0 &gt; fmax
+    error(<span class="string">'f0 must be &lt;= fmax'</span>)
+<span class="keyword">end</span>
+<span class="comment">%generate factor a</span>
+<span class="keyword">if</span> isempty(rangeA)
+    <span class="comment">% corruption</span>
+    a = 0.9 + rand * 0.2;
+<span class="keyword">elseif</span> length(rangeA) == 2
+    <span class="comment">%normalization</span>
+    a = rangeA(1) + rand * (rangeA(2) - rangeA(1));
+<span class="keyword">else</span>
+    error(<span class="string">'rangeA is not valid!'</span>);
+<span class="keyword">end</span>
+<span class="comment">%prepare image</span>
+IM = double(IM);
+[rows,columns,depth] = size(IM);
+x = linspace(0,fmax,columns);
+y = flipud(linspace(0,fmax,rows));
+[X,Y] = meshgrid(x,y);
+<span class="comment">%define transformation with VTLN algorithm</span>
+Q = a * Y; <span class="comment">%matrix for new y coordinates</span>
+Y2 = ((fmax-a*f0)/(fmax-f0))*(Y-f0)+a*f0;
+Q(Y&gt;f0) = Y2(Y&gt;f0);
+Iout = single(zeros(rows,columns,depth)); <span class="comment">%preallocation</span>
+<span class="keyword">for</span> d = 1:depth
+    Iout(:,:,d) = single(round(interp2(X,Y,IM(:,:,d),X,Q,<span class="string">'linear'</span>,0))); <span class="comment">%apply transformation to the image</span>
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% VTLN.m
+
+function Iout = VTLN(IM,f0,fmax,rangeA)
+% VTLN generates a new spectrogram image based on the Vocal Tract Lenght
+% Normalization (VTLN) and Perturbation (VTLP). VTLN is used to remove
+% speaker to speaker variability resulting from differences in vocal tract 
+% length (Lee & Rose, 1998). The frequency axis of the spectrogram of each 
+% speaker is linearly warped using the factor a, that accounts for 
+% the relative length of the speakers's vocal tract compared to the
+% canonical mean. 
+%
+% This implementation takes into account also the a values for perturbation
+% instead of normalization, as in Jaitly & Hinton, 2013)
+%
+%   Iout = VTLN(IM,f0,fmax,rangeA)
+%
+%   Input
+%   IM: image (spectrogram)
+
+%   f0: empirically chosen frequency (relate to fmax)
+
+%   fmax: max frequency of the spectrogram
+
+%   rangeA: range of random factor 'a' in form of array [min max]. a should
+%      be between 0.8 and 1.2. If rangeA is empty then is used a random
+%      value between 0.9 and 1.1 (to corrupt)
+%
+%   Output
+%   Iout: transformed image
+%
+%   Original publications 
+%   - (Lee & Rose, 1998) DOI: 10.1109/89.650310 
+%   - (Jaitly & Hinton, 2013) https://scinapse.io/papers/2099621636
+
+
+%check f0 <= fmax
+if f0 > fmax
+    error('f0 must be <= fmax')
+end
+%generate factor a
+if isempty(rangeA)
+    % corruption
+    a = 0.9 + rand * 0.2;
+elseif length(rangeA) == 2
+    %normalization
+    a = rangeA(1) + rand * (rangeA(2) - rangeA(1));
+else
+    error('rangeA is not valid!');
+end
+%prepare image
+IM = double(IM);
+[rows,columns,depth] = size(IM);
+x = linspace(0,fmax,columns);
+y = flipud(linspace(0,fmax,rows));
+[X,Y] = meshgrid(x,y);
+%define transformation with VTLN algorithm
+Q = a * Y; %matrix for new y coordinates
+Y2 = ((fmax-a*f0)/(fmax-f0))*(Y-f0)+a*f0;
+Q(Y>f0) = Y2(Y>f0);
+Iout = single(zeros(rows,columns,depth)); %preallocation
+for d = 1:depth
+    Iout(:,:,d) = single(round(interp2(X,Y,IM(:,:,d),X,Q,'linear',0))); %apply transformation to the image
+end
+end
+##### SOURCE END #####
+--></body></html>

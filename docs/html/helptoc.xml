@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding="utf-8"?>
+
+<toc version="2.0">
+<!-- First tocitem specifies top level in Help browser Contents pane -->
+<!-- This can be a roadmap page, as shown below, or a content page -->
+    <tocitem target="doc_index.html">Augmentation Toolbox
+        <!-- Nest tocitems to create hierarchical entries in  Contents-->
+        <!-- To include icons, use the following syntax for tocitems: -->
+        <!-- <tocitem target="foo.html" image="HelpIcon.NAME"> -->
+        <!-- Title-of-Section </tocitem> -->
+        <!-- where NAME is one of the following (use capital letters): -->
+        <!-- FUNCTION, USER_GUIDE, EXAMPLES, BLOCK, GETTING_STARTED, -->
+        <!-- DEMOS, RELEASE_NOTES --> 
+        <!-- Icon images used for these entries are also stored in -->
+        <!-- matlabroot/toolbox/matlab/icons -->
+        <!-- A Getting Started Guide usually comes first -->
+        
+        <!--<tocitem target="mytbx_gs_top.html" image="HelpIcon.GETTING_STARTED">
+            Getting Started with the MyToolbox Toolbox
+            <tocitem target="mytbx_reqts_example.html">System Requirements
+            </tocitem>
+            <tocitem target="mytbx_features_example.html">Features
+                <tocitem target="mytbx_feature1_example.htm#10187">Feature 1
+                </tocitem>
+                <tocitem target="mytbx_feature2_example.htm#10193">Feature 2
+                </tocitem>
+            </tocitem>
+        </tocitem> -->
+        
+        <!-- User Guide comes next -->
+        <!--<tocitem target="mytbx_ug_intro.html" 
+            image="HelpIcon.USER_GUIDE">MyToolbox User Guide
+            <tocitem target="mytbx_ch_1.html">Setting Up MyToolbox
+            </tocitem>
+            <tocitem target="mytbx_ch_2.html">Processing Data
+            </tocitem>
+            <tocitem target="mytbx_ch_3.html">Verifying MyToolbox outputs 
+                <tocitem target="mytbx_ch_3a.html">Handling Test Failures
+                </tocitem>
+            </tocitem>
+        </tocitem>-->
+        
+        <!-- Function reference next -->
+        <!-- First item is page describing function categories, if any -->
+        <tocitem target="doc_tools_index.html" 
+                 image="HelpIcon.FUNCTION">Function Reference
+            <!-- General function -->
+            <tocitem target="CreateDataAUGFromAudio.html">CreateDataAUGFromAudio.m</tocitem>
+            <tocitem target="CreateDataAUGFromImage.html">CreateDataAUGFromImage.m</tocitem>
+            <!-- First category, with link to anchor in above page -->
+            <tocitem target="doc_tools_audio_index.html">Functions for augmentation from audio signals
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="applyAliasing.html">applyAliasing.m</tocitem>
+                <tocitem target="applyClipping.html">applyClipping.m</tocitem>
+                <tocitem target="applyDelay.html">applyDelay.m</tocitem>
+                <tocitem target="applyDynamicRangeCompressor.html">applyDynamicRangeCompressor.m</tocitem>
+                <tocitem target="applyGain.html">applyGain.m</tocitem>
+                <tocitem target="applyHarmonicDistortion.html">applyHarmonicDistortion.m</tocitem>
+                <tocitem target="applyHighpassFilter.html">applyHighpassFilter.m</tocitem>
+                <tocitem target="applyImpulseResponse.html">applyImpulseResponse.m</tocitem>
+                <tocitem target="applyLowpassFilter.html">applyLowpassFilter.m</tocitem>
+                <tocitem target="applyMp3Compression.html">applyMp3Compression.m</tocitem>
+                <tocitem target="applyNoise.html">applyNoise.m</tocitem>
+                <tocitem target="applyPitchShift.html">applyPitchShift.m</tocitem>
+                <tocitem target="applyRandTimeShift.html">applyRandTimeShift.m</tocitem>
+                <tocitem target="applySoundMix.html">applySoundMix.m</tocitem>
+                <tocitem target="applySpeedUp.html">applySpeedUp.m</tocitem>
+                <tocitem target="applyWowResampling.html">applyWowResampling.m</tocitem>
+                <tocitem target="generateSpectrogram.html">generateSpectrogram.m</tocitem>
+                <!-- ... -->
+            </tocitem>
+            <!-- Second category, with link to anchor in above page -->
+            <tocitem target="doc_tools_images_index.html">Functions for augmentation from images
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="applyVTLN.html">applyVTLN.m</tocitem>
+                <tocitem target="applyEMDAAugmenter.html">applyEMDAAugmenter.m</tocitem>
+                <tocitem target="applyFrequencyMasking.html">applyFrequencyMasking.m</tocitem>
+                <tocitem target="applyNoiseS.html">applyNoiseS.m</tocitem>
+                <tocitem target="applyRandomImageWarp.html">applyRandomImageWarp.m</tocitem>
+                <tocitem target="applySpecRandTimeShift.html">applySpecRandTimeShift.m</tocitem>
+                <tocitem target="applySpectrogramSameClassSum.html">applySpectrogramSameClassSum.m</tocitem>
+                <tocitem target="applySpectrogramRandomShifts.html">applySpectrogramRandomShifts.m</tocitem>
+                <tocitem target="changeImage_Interp.html">changeImage_Interp.m</tocitem>
+                <tocitem target="cropVTLN.html">cropVTLN.m</tocitem>
+                <tocitem target="noiseAddtion.html">noiseAddition</tocitem>
+                <tocitem target="randCrop.html">randCrop.m</tocitem>
+                <tocitem target="spectrogramEMDA.html">spectrogramEMDA.m</tocitem>
+                <tocitem target="spectrogramEQ.html">spectrogramEQ.m</tocitem>
+                <tocitem target="spectrogramShift.html">spectrogramShift.m</tocitem>
+                <tocitem target="spectrogramSum.html">spectrogramSum.m</tocitem>
+                <tocitem target="VTLN.html">VTLN.m</tocitem>
+                <!-- ... -->
+             </tocitem>
+        </tocitem>
+        <!-- Optional List of Examples, with hyperlinks to examples in other files -->
+        <tocitem target="doc_example_index.html" 
+                 image="HelpIcon.HelpIcon.EXAMPLES">Augmentation Examples
+                 <tocitem target="testAugmentation.html">testAugmentation.m</tocitem>
+                 <tocitem target="plotTestAugmentation.html">plotTestAugmentation.m</tocitem>
+        </tocitem>
+        <!-- Optional List of Examples, with hyperlinks to examples in other files -->
+        <tocitem target="doc_demo_index.html" 
+                 image="HelpIcon.HelpIcon.DEMO">Demos
+                 <tocitem target="createOriginalData.html">createOriginalData.m</tocitem>
+                 <tocitem target="createAudioSamples.html">createAudioSamples.m</tocitem>
+                 <tocitem target="createSpectrogramSamples.html">createSpectrogramSamples.m</tocitem>
+                 <tocitem target="demoBaseline.html">demoBaseline.m</tocitem>
+                 <tocitem target="demoAudioAugmentation.html">demoAudioAugmentation.m</tocitem>
+                 <tocitem target="demoSpectrogramAugmentation.html">demoSpectrogramAugmentation.m</tocitem>
+        </tocitem>
+		
+        <!-- Optional link or links to your or other Web sites -->
+        <!-- <tocitem target="http://www.mathworks.com" 
+                 image="$toolbox/matlab/icons/webicon.gif">
+        MyToolbox Web Site (Example only: goes to mathworks.com)
+        </tocitem> -->
+    </tocitem>
+</toc>

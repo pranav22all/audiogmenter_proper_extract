@@ -1,0 +1,277 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>changeImage_Interp.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-28"><meta name="DC.source" content="changeImage_Interp.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>changeImage_Interp.m</h1><pre class="codeinput"><span class="comment">% This function uses a modification of the implementation of the Thin-Plane</span>
+<span class="comment">% spline warping available at</span>
+<span class="comment">% https://it.mathworks.com/matlabcentral/fileexchange/24315-warping-using-thin-plate-splines</span>
+
+<span class="keyword">function</span> imgw = changeImage_Interp(IM, xGrid, yGrid, xNoise,numPunti, maxChange)
+<span class="comment">% CHANGEIMAGE_INTERP computes the reference points (landmarks) in the</span>
+<span class="comment">% original image IM and in the warped image imgw. The warping performed by</span>
+<span class="comment">% tpswarp will translate the landmarks in IM into the landmarks in imgw.</span>
+<span class="comment">%</span>
+<span class="comment">% This function</span>
+<span class="comment">%   1) perturbs numPunti+2 points by translating them on the x axis,</span>
+<span class="comment">%   accoring to the noise xNoise</span>
+<span class="comment">%   2) uses the Piecewise Cubic Hermite Interpolating Polynomial (pchip)</span>
+<span class="comment">%   and the horizontally perturbed numPunti+2 points to apply the</span>
+<span class="comment">%   horizontal perturbation to all the pixels in IM</span>
+<span class="comment">%   3)samples the original image IM and the horizontally pertubed image by</span>
+<span class="comment">%   selecting a subset of pixels every xGrid and yGrid pixels in order to</span>
+<span class="comment">%   generate the landmarks in the original image IM and in the warped image</span>
+<span class="comment">%   imgw to be generated by tpswarp.</span>
+<span class="comment">%</span>
+<span class="comment">%   imgw = changeImage_Interp(IM, xGrid, yGrid, xNoise,numPunti, maxChange)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   IM: original input image</span>
+<span class="comment">%</span>
+<span class="comment">%   xGrid: distance between consecutive perturbed pixels in the x axis</span>
+<span class="comment">%</span>
+<span class="comment">%   yGrid: distance between consecutive perturbed pixels in the y axis</span>
+<span class="comment">%</span>
+<span class="comment">%   xNoise: size of the random perturbation in the x axis</span>
+<span class="comment">%</span>
+<span class="comment">%   numPunti: number of points used to generate the perturbation</span>
+<span class="comment">%</span>
+<span class="comment">%   maxChange: max radius for nearest neighbor interpolation required by</span>
+<span class="comment">%       tpswarp</span>
+<span class="comment">%</span>
+
+<span class="comment">% Picks numPunti+2 random points to be horizontally perturbed by xNoise</span>
+num=xGrid:xGrid:size(IM,2)-xGrid;
+punti=sort(num(randperm(length(num),numPunti)));
+x=ones(numPunti+2,1);<span class="comment">%posizione inizale pixel</span>
+y=ones(numPunti+2,1);<span class="comment">%posizione di destianlione pixel</span>
+x(numPunti+2)=size(IM,2);
+y(numPunti+2)=size(IM,2);
+x(2:1:numPunti+1)=punti;
+
+<span class="comment">% Random addition or subtraction of xNoise</span>
+<span class="keyword">if</span> round(rand)==0
+    sig=1;
+<span class="keyword">else</span>
+    sig=-1;
+<span class="keyword">end</span>
+
+<span class="comment">% Avoids overlapping of perturbed points</span>
+<span class="keyword">for</span> i=2:1:numPunti+1
+    distMin=min([x(i)-x(i-1) x(i+1)-x(i)]);
+    <span class="keyword">if</span> mod(i,2)==0
+        <span class="keyword">if</span> distMin&lt;(2*xNoise)
+            y(i)=x(i)+(sig*floor(distMin/4));
+        <span class="keyword">else</span>
+            y(i)=x(i)+xNoise;
+        <span class="keyword">end</span>
+    <span class="keyword">else</span>
+        <span class="keyword">if</span> distMin&lt;(2*xNoise)
+            y(i)=x(i)-(sig*floor(distMin/4));
+        <span class="keyword">else</span>
+            y(i)=x(i)-xNoise;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% Points to be horizontally perturbed by means of interpolation</span>
+xx=1: 1: size(IM,1);
+
+<span class="comment">% Computes interpolation on the points in xx</span>
+<span class="comment">%yy=spline(x,y,xx);       %interpolazione alternativa</span>
+yy=pchip(x,y,xx);         <span class="comment">%interpolazione per creare la fuzione che mi sposta i pixel</span>
+
+<span class="comment">% Selects the landmark points in the original image IM and in for the</span>
+<span class="comment">% warped image imgw to be nerated by tpswarp</span>
+i = 1;
+<span class="keyword">for</span> row = 1: xGrid: size(IM,1)
+    <span class="keyword">for</span> col = 1: yGrid: size(IM,2)
+        Y(i,1) = col;
+        Y(i,2) = floor(yy(row)); <span class="comment">% perturbation in time (horizontal)</span>
+        Z(i,1) = col;
+        Z(i,2) = row;
+        i = i+1;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">% tpswarp interpolation options</span>
+interp = struct();
+interp.method = <span class="string">'nearest'</span>;
+interp.radius = maxChange;
+interp.power = 1;
+
+<span class="comment">% Applies the Thin-Plane spline warping in time</span>
+[imgw, imgwr, map] = tpswarp(single(IM),[size(IM,2),size(IM,1)],Z,Y,interp);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% changeImage_Interp.m
+
+% This function uses a modification of the implementation of the Thin-Plane 
+% spline warping available at 
+% https://it.mathworks.com/matlabcentral/fileexchange/24315-warping-using-thin-plate-splines
+
+function imgw = changeImage_Interp(IM, xGrid, yGrid, xNoise,numPunti, maxChange)
+% CHANGEIMAGE_INTERP computes the reference points (landmarks) in the
+% original image IM and in the warped image imgw. The warping performed by 
+% tpswarp will translate the landmarks in IM into the landmarks in imgw.
+%
+% This function
+%   1) perturbs numPunti+2 points by translating them on the x axis,
+%   accoring to the noise xNoise
+%   2) uses the Piecewise Cubic Hermite Interpolating Polynomial (pchip)
+%   and the horizontally perturbed numPunti+2 points to apply the
+%   horizontal perturbation to all the pixels in IM
+%   3)samples the original image IM and the horizontally pertubed image by
+%   selecting a subset of pixels every xGrid and yGrid pixels in order to
+%   generate the landmarks in the original image IM and in the warped image
+%   imgw to be generated by tpswarp.
+%
+%   imgw = changeImage_Interp(IM, xGrid, yGrid, xNoise,numPunti, maxChange)
+%
+%   Input
+%   IM: original input image
+%
+%   xGrid: distance between consecutive perturbed pixels in the x axis
+%
+%   yGrid: distance between consecutive perturbed pixels in the y axis
+%
+%   xNoise: size of the random perturbation in the x axis
+%
+%   numPunti: number of points used to generate the perturbation
+%
+%   maxChange: max radius for nearest neighbor interpolation required by
+%       tpswarp
+%
+
+% Picks numPunti+2 random points to be horizontally perturbed by xNoise
+num=xGrid:xGrid:size(IM,2)-xGrid;
+punti=sort(num(randperm(length(num),numPunti)));
+x=ones(numPunti+2,1);%posizione inizale pixel
+y=ones(numPunti+2,1);%posizione di destianlione pixel
+x(numPunti+2)=size(IM,2);
+y(numPunti+2)=size(IM,2);
+x(2:1:numPunti+1)=punti;
+
+% Random addition or subtraction of xNoise
+if round(rand)==0
+    sig=1;
+else
+    sig=-1;
+end
+
+% Avoids overlapping of perturbed points
+for i=2:1:numPunti+1
+    distMin=min([x(i)-x(i-1) x(i+1)-x(i)]);
+    if mod(i,2)==0
+        if distMin<(2*xNoise)
+            y(i)=x(i)+(sig*floor(distMin/4));
+        else
+            y(i)=x(i)+xNoise;
+        end
+    else
+        if distMin<(2*xNoise)
+            y(i)=x(i)-(sig*floor(distMin/4));
+        else
+            y(i)=x(i)-xNoise;
+        end
+    end
+end
+
+% Points to be horizontally perturbed by means of interpolation
+xx=1: 1: size(IM,1);
+
+% Computes interpolation on the points in xx
+%yy=spline(x,y,xx);       %interpolazione alternativa
+yy=pchip(x,y,xx);         %interpolazione per creare la fuzione che mi sposta i pixel
+
+% Selects the landmark points in the original image IM and in for the
+% warped image imgw to be nerated by tpswarp
+i = 1;
+for row = 1: xGrid: size(IM,1)
+    for col = 1: yGrid: size(IM,2)
+        Y(i,1) = col;
+        Y(i,2) = floor(yy(row)); % perturbation in time (horizontal)
+        Z(i,1) = col;
+        Z(i,2) = row;
+        i = i+1;
+    end
+end
+
+% tpswarp interpolation options
+interp = struct();
+interp.method = 'nearest';
+interp.radius = maxChange;
+interp.power = 1;
+
+% Applies the Thin-Plane spline warping in time
+[imgw, imgwr, map] = tpswarp(single(IM),[size(IM,2),size(IM,1)],Z,Y,interp);
+end
+
+
+
+##### SOURCE END #####
+--></body></html>

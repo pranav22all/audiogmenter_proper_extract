@@ -1,0 +1,204 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>applyImpulseResponse.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="applyImpulseResponse.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>applyImpulseResponse.m</h1><p>This function uses the Audio Degradation Toolbox (ADT) available at <a href="https://code.soundsoftware.ac.uk/projects/audio-degradation-toolbox">https://code.soundsoftware.ac.uk/projects/audio-degradation-toolbox</a></p><pre class="codeinput"><span class="keyword">function</span> [dataNew, fs]  = applyImpulseResponse(nummp3, impulseResponses, fs)
+<span class="comment">%   APPLYIMPULSERESPONSE is a method that modifies each audio signal in nummp3</span>
+<span class="comment">%   applying a FIR filter.</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   nummp3: raw audio signal</span>
+<span class="comment">%   impulseResponse: type of impulse response</span>
+<span class="comment">%   fs: frequencies of the audio signals. Not required if nummp3 contains</span>
+<span class="comment">%       the audio paths.</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   dataNew: perturbed audio signal</span>
+<span class="comment">%   fs: new frequencies</span>
+<span class="comment">%</span>
+<span class="comment">%   The original function degradationUnit_applyImpulseResponse.m is included in</span>
+<span class="comment">%   ./tools/audio/audio-degradation-toolbox/</span>
+
+<span class="comment">%sets the inpulseResponse.</span>
+<span class="comment">% Initialize data and the parameter</span>
+<span class="keyword">if</span> isa(nummp3,<span class="string">'struct'</span>)
+    singleInput = false;
+    nSamples = length(nummp3);
+    flag = true;
+<span class="keyword">elseif</span> isa(nummp3,<span class="string">'cell'</span>)
+    flag = false;
+    nSamples = length(nummp3);
+    singleInput = false;
+    data = nummp3;
+<span class="keyword">else</span>      <span class="comment">%the data is a single signal</span>
+    flag = false;
+    singleInput = true;
+    data = {nummp3};
+    fs = {fs};
+    nSamples = 1;
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> length(impulseResponses) == 0
+    impulseResponses = {<span class="string">'GreatHall1'</span>,<span class="keyword">...</span>
+        <span class="string">'Classroom1'</span>,<span class="keyword">...</span>
+        <span class="string">'Octagon1'</span>,<span class="keyword">...</span>
+        <span class="string">'GoogleNexusOneFrontSpeaker'</span>,<span class="keyword">...</span>
+        <span class="string">'GoogleNexusOneFrontMic'</span>,<span class="keyword">...</span>
+        <span class="string">'VinylPlayer1960'</span>};
+<span class="keyword">end</span>
+
+<span class="keyword">parfor</span> j=1:nSamples
+    <span class="comment">% Check whether the input must be read</span>
+    <span class="keyword">if</span> flag
+        [data{j},fs{j}]=audioread(nummp3(j).name);
+    <span class="keyword">end</span>
+    <span class="comment">% Set the parameters for the aliasing</span>
+    num{j} = randi(length(impulseResponses));
+    paramHarmonicDistortion{j} = setParameterImpulseResponse(impulseResponses{num{j}});
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> singleInput
+    dataNew = degradationUnit_applyImpulseResponse(data{1}, fs{1}, [], paramHarmonicDistortion{1});
+    fs = fs{1};
+<span class="keyword">else</span>
+    <span class="keyword">parfor</span> j=1:length(nummp3)
+        dataNew{j} = degradationUnit_applyImpulseResponse(data{j}, fs{j}, [], paramHarmonicDistortion{j});
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% applyImpulseResponse.m
+% This function uses the Audio Degradation Toolbox (ADT) available at
+% <https://code.soundsoftware.ac.uk/projects/audio-degradation-toolbox>
+
+function [dataNew, fs]  = applyImpulseResponse(nummp3, impulseResponses, fs)
+%   APPLYIMPULSERESPONSE is a method that modifies each audio signal in nummp3
+%   applying a FIR filter.
+%   Input
+%   nummp3: raw audio signal
+%   impulseResponse: type of impulse response
+%   fs: frequencies of the audio signals. Not required if nummp3 contains
+%       the audio paths.
+%
+%   Output
+%   dataNew: perturbed audio signal
+%   fs: new frequencies
+%
+%   The original function degradationUnit_applyImpulseResponse.m is included in
+%   ./tools/audio/audio-degradation-toolbox/
+
+%sets the inpulseResponse.
+% Initialize data and the parameter
+if isa(nummp3,'struct')
+    singleInput = false;
+    nSamples = length(nummp3);
+    flag = true;
+elseif isa(nummp3,'cell')
+    flag = false;
+    nSamples = length(nummp3);
+    singleInput = false;
+    data = nummp3;
+else      %the data is a single signal
+    flag = false;
+    singleInput = true;
+    data = {nummp3};
+    fs = {fs};
+    nSamples = 1;
+end
+
+if length(impulseResponses) == 0
+    impulseResponses = {'GreatHall1',...
+        'Classroom1',...
+        'Octagon1',...
+        'GoogleNexusOneFrontSpeaker',...
+        'GoogleNexusOneFrontMic',...
+        'VinylPlayer1960'};
+end
+
+parfor j=1:nSamples
+    % Check whether the input must be read
+    if flag
+        [data{j},fs{j}]=audioread(nummp3(j).name);
+    end
+    % Set the parameters for the aliasing
+    num{j} = randi(length(impulseResponses));
+    paramHarmonicDistortion{j} = setParameterImpulseResponse(impulseResponses{num{j}});
+end
+
+if singleInput
+    dataNew = degradationUnit_applyImpulseResponse(data{1}, fs{1}, [], paramHarmonicDistortion{1});
+    fs = fs{1};
+else
+    parfor j=1:length(nummp3)
+        dataNew{j} = degradationUnit_applyImpulseResponse(data{j}, fs{j}, [], paramHarmonicDistortion{j});
+    end
+end
+
+end
+##### SOURCE END #####
+--></body></html>

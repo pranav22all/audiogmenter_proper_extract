@@ -1,0 +1,316 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>spectrogramEMDA.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-28"><meta name="DC.source" content="spectrogramEMDA.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>spectrogramEMDA.m</h1><pre class="codeinput"><span class="keyword">function</span> IMout = spectrogramEMDA(IM1,IM2,varargin)
+<span class="comment">% SPECTROGRAMEMDA applies the Equalized Mixture Data Augmentation (EMDA)</span>
+<span class="comment">%   algorithm to a couple of spectrograms.</span>
+<span class="comment">%   Originally, EMDA randomly mixes two sounds of the same class, with</span>
+<span class="comment">%   randomly selected timings. Furthermore, it perturbs the sound by</span>
+<span class="comment">%   moderately modifying frequency characteristics of each source sound by</span>
+<span class="comment">%   boosting/attenuating a particular frequency band.</span>
+<span class="comment">%</span>
+<span class="comment">%   THIS IMPLEMENTATION OF EMDA WORKS WITH SPECTROGRAMS INSTEAD OF AUDIO</span>
+<span class="comment">%   SIGNALS</span>
+<span class="comment">%</span>
+<span class="comment">%   IMout = spectrogramEMDA(IM1,IM2,varargin)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   IM1,IM2: spectrograms</span>
+<span class="comment">%</span>
+<span class="comment">%   Optionals input</span>
+<span class="comment">%   freq: [f0min, f0max, fmax]</span>
+<span class="comment">%       f0min: min center frequency (in relation to fmax)</span>
+<span class="comment">%       f0max: max center frequency (in relation to fmax)</span>
+<span class="comment">%       fmax: max frequency of the spectrogram</span>
+<span class="comment">%</span>
+<span class="comment">%   Q: [Qmin, Qmax] are the min and max bandwidth (in pixel)</span>
+<span class="comment">%</span>
+<span class="comment">%   gain: [GainMin, GainMax] are the min and max gains</span>
+<span class="comment">%</span>
+<span class="comment">%   delayMax: max delay in pixel</span>
+<span class="comment">%</span>
+<span class="comment">%   circularShift: if true the delay is applied with a circular shift</span>
+<span class="comment">%                   if false the dalay is applied with padding</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   IMout: new generated spectrogram</span>
+<span class="comment">%</span>
+<span class="comment">%   Original publication https://arxiv.org/abs/1604.07160</span>
+
+
+<span class="comment">%default value</span>
+f0min = 100;
+f0max = 6000;
+fmax = 22000;
+Qmin = 1;
+Qmax = 9;
+GainMin = -8;
+GainMax = 8;
+delayMax = 50;
+circularShift = true;
+<span class="comment">%parse optional arguments</span>
+<span class="keyword">if</span> nargin &gt; 2
+    <span class="keyword">for</span> i = 1:2:length(varargin)
+        arg = varargin{i+1};
+        <span class="keyword">switch</span>(varargin{i})
+            <span class="keyword">case</span> <span class="string">'freq'</span>
+                <span class="keyword">if</span> length(arg) ~= 3
+                    error(<span class="string">'freq is invalid! Must be [f0min,f0max,fmax]'</span>)
+                <span class="keyword">end</span>
+                f0min = arg(1);
+                f0max = arg(2);
+                fmax = arg(3);
+            <span class="keyword">case</span> <span class="string">'Q'</span>
+                <span class="keyword">if</span> length(arg) ~= 2
+                    error(<span class="string">'Q is invalid! Must be [min max]'</span>)
+                <span class="keyword">end</span>
+                Qmin = arg(1);
+                Qmax = arg(2);
+            <span class="keyword">case</span> <span class="string">'gain'</span>
+                <span class="keyword">if</span> length(arg) ~= 2
+                    error(<span class="string">'gain is invalid! Must be [min max]'</span>)
+                <span class="keyword">end</span>
+                GainMin = arg(1);
+                GainMax = arg(2);
+            <span class="keyword">case</span> <span class="string">'delayMax'</span>
+                <span class="keyword">if</span> length(arg) ~= 1
+                    error(<span class="string">'delayMax is invalid! Must be a scalar'</span>)
+                <span class="keyword">end</span>
+                delayMax = arg;
+            <span class="keyword">case</span> <span class="string">'circularShift'</span>
+                <span class="keyword">if</span> length(arg) ~= 1
+                    error(<span class="string">'circularShift is invalid! Must be a scalar'</span>)
+                <span class="keyword">end</span>
+                circularShift = arg;
+            <span class="keyword">otherwise</span>
+                error(strcat(<span class="string">'Argument number '</span>, num2str(1+i), <span class="string">' is not valid!'</span>))
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+<span class="comment">%start algorithm</span>
+[A,B,~] = size(IM1);
+<span class="comment">%apply delay</span>
+<span class="keyword">if</span> circularShift
+    IM2 = circularShiftFunc(IM2,randi([0,delayMax])); <span class="comment">%apply circular shift</span>
+<span class="keyword">else</span>
+    <span class="comment">%applay delay with padding</span>
+    delay = randi([0,delayMax]);
+    IM2 = padarray(IM2,[0,delay],0,<span class="string">'pre'</span>);
+    IM1 = padarray(IM1,[0,delay],0,<span class="string">'post'</span>);
+<span class="keyword">end</span>
+<span class="comment">%combining spectrograms</span>
+a = rand(); <span class="comment">%random value</span>
+IM1 = a * spectrogramEQ(IM1, f0min + rand()*(f0max-f0min), fmax, randi([GainMin,GainMax]), randi([Qmin,Qmax]));
+IM2 = (1-a) * spectrogramEQ(IM2, f0min + rand()*(f0max-f0min), fmax, randi([GainMin,GainMax]), randi([Qmin,Qmax]));
+
+[min1,max1] = bounds(IM1,<span class="string">'all'</span>);
+[min2,max2] = bounds(IM2,<span class="string">'all'</span>);
+IMout = single(rescale(single(IM1)+single(IM2),min(min1,min2),max(max1,max2))); <span class="comment">%sum and rescale</span>
+
+<span class="keyword">if</span> ~circularShift
+    IMout = imresize(IMout,[A,B]); <span class="comment">%resize for use in training</span>
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> IM3 = circularShiftFunc(IM,shift)
+<span class="comment">% CIRCULARSHIFTFUNC circularly shifts the input image IM by shift</span>
+<span class="keyword">if</span> shift == 0
+    IM3 = IM;
+<span class="keyword">else</span>
+    [a,b,~,~] = size(IM);
+    IM1 = imcrop(IM,[0,0,b-shift,a]);
+    IM2 = imcrop(IM,[b-shift+1,0,shift,a]);
+    IM3 = [IM2 IM1];
+<span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% spectrogramEMDA.m
+
+function IMout = spectrogramEMDA(IM1,IM2,varargin)
+% SPECTROGRAMEMDA applies the Equalized Mixture Data Augmentation (EMDA)
+%   algorithm to a couple of spectrograms.
+%   Originally, EMDA randomly mixes two sounds of the same class, with 
+%   randomly selected timings. Furthermore, it perturbs the sound by 
+%   moderately modifying frequency characteristics of each source sound by 
+%   boosting/attenuating a particular frequency band.
+%   
+%   THIS IMPLEMENTATION OF EMDA WORKS WITH SPECTROGRAMS INSTEAD OF AUDIO
+%   SIGNALS
+%
+%   IMout = spectrogramEMDA(IM1,IM2,varargin)
+%
+%   Input
+%   IM1,IM2: spectrograms
+%
+%   Optionals input
+%   freq: [f0min, f0max, fmax]
+%       f0min: min center frequency (in relation to fmax)
+%       f0max: max center frequency (in relation to fmax)
+%       fmax: max frequency of the spectrogram
+%   
+%   Q: [Qmin, Qmax] are the min and max bandwidth (in pixel)
+%
+%   gain: [GainMin, GainMax] are the min and max gains
+%
+%   delayMax: max delay in pixel
+%
+%   circularShift: if true the delay is applied with a circular shift
+%                   if false the dalay is applied with padding
+%   Output
+%   IMout: new generated spectrogram
+%
+%   Original publication https://arxiv.org/abs/1604.07160
+
+
+%default value
+f0min = 100;
+f0max = 6000;
+fmax = 22000;
+Qmin = 1;
+Qmax = 9;
+GainMin = -8;
+GainMax = 8;
+delayMax = 50;
+circularShift = true;
+%parse optional arguments
+if nargin > 2
+    for i = 1:2:length(varargin)
+        arg = varargin{i+1};
+        switch(varargin{i})
+            case 'freq'
+                if length(arg) ~= 3
+                    error('freq is invalid! Must be [f0min,f0max,fmax]')
+                end
+                f0min = arg(1);
+                f0max = arg(2);
+                fmax = arg(3);
+            case 'Q'
+                if length(arg) ~= 2
+                    error('Q is invalid! Must be [min max]')
+                end
+                Qmin = arg(1);
+                Qmax = arg(2);
+            case 'gain'
+                if length(arg) ~= 2
+                    error('gain is invalid! Must be [min max]')
+                end
+                GainMin = arg(1);
+                GainMax = arg(2);
+            case 'delayMax'
+                if length(arg) ~= 1
+                    error('delayMax is invalid! Must be a scalar')
+                end
+                delayMax = arg;
+            case 'circularShift'
+                if length(arg) ~= 1
+                    error('circularShift is invalid! Must be a scalar')
+                end
+                circularShift = arg;
+            otherwise
+                error(strcat('Argument number ', num2str(1+i), ' is not valid!'))
+        end
+    end
+end
+%start algorithm
+[A,B,~] = size(IM1);
+%apply delay
+if circularShift
+    IM2 = circularShiftFunc(IM2,randi([0,delayMax])); %apply circular shift
+else
+    %applay delay with padding
+    delay = randi([0,delayMax]);
+    IM2 = padarray(IM2,[0,delay],0,'pre');
+    IM1 = padarray(IM1,[0,delay],0,'post');
+end
+%combining spectrograms
+a = rand(); %random value
+IM1 = a * spectrogramEQ(IM1, f0min + rand()*(f0max-f0min), fmax, randi([GainMin,GainMax]), randi([Qmin,Qmax]));
+IM2 = (1-a) * spectrogramEQ(IM2, f0min + rand()*(f0max-f0min), fmax, randi([GainMin,GainMax]), randi([Qmin,Qmax]));
+
+[min1,max1] = bounds(IM1,'all');
+[min2,max2] = bounds(IM2,'all');
+IMout = single(rescale(single(IM1)+single(IM2),min(min1,min2),max(max1,max2))); %sum and rescale
+
+if ~circularShift
+    IMout = imresize(IMout,[A,B]); %resize for use in training
+end
+end
+
+function IM3 = circularShiftFunc(IM,shift)
+% CIRCULARSHIFTFUNC circularly shifts the input image IM by shift
+if shift == 0
+    IM3 = IM;
+else
+    [a,b,~,~] = size(IM);
+    IM1 = imcrop(IM,[0,0,b-shift,a]);
+    IM2 = imcrop(IM,[b-shift+1,0,shift,a]);
+    IM3 = [IM2 IM1];
+end
+end
+##### SOURCE END #####
+--></body></html>

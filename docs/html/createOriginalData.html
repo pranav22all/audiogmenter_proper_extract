@@ -1,0 +1,183 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Extract spectrograms from original data</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="createOriginalData.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Extract spectrograms from original data</h1><!--introduction--><p>This script creates the spectrograms of the audio files of the ESC-50 dataset for audio classification.</p><p>This script creates the spectrograms of the raw audio samples and splits them into 5 folders, one for every fold. Each one of these folders contain 50 subfolders, one for every class.</p><p>The orignal audio files must be included in a folder name ESC-50 that can be downloaded at <a href="https://github.com/karolpiczak/ESC-50">https://github.com/karolpiczak/ESC-50</a>.</p><p>The spectrograms are saved in a new folder named originalSpectrograms.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Create the folders if they do not already exist</a></li><li><a href="#2">select the folders that contain the data</a></li><li><a href="#3">Set the hyperparameters for rescaling the spectrograms</a></li><li><a href="#4">Iterate over classes and folds</a></li><li><a href="#5">Read the data</a></li><li><a href="#6">Create the folders for storing the spectrograms</a></li><li><a href="#7">Generate and save the spectrograms</a></li></ul></div><h2 id="1">Create the folders if they do not already exist</h2><pre class="codeinput">clear
+d = dir(<span class="string">'ESC-50'</span>);
+<span class="keyword">if</span> ~exist(<span class="string">'originalSpectrograms'</span>,<span class="string">'dir'</span>)
+    mkdir(<span class="string">'originalSpectrograms'</span>)
+<span class="keyword">end</span>
+<span class="keyword">if</span> ~exist(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'1'</span>),<span class="string">'dir'</span>)
+    mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'1'</span>))
+    mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'2'</span>))
+    mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'3'</span>))
+    mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'4'</span>))
+    mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,<span class="string">'5'</span>))
+<span class="keyword">end</span>
+</pre><h2 id="2">select the folders that contain the data</h2><pre class="codeinput">classes = d([d(:).isdir]==1);
+classes = classes(~ismember({classes(:).name},{<span class="string">'.'</span>,<span class="string">'..'</span>}));
+</pre><h2 id="3">Set the hyperparameters for rescaling the spectrograms</h2><p>the audio signal is cut or padded to be audioLength seconds long.</p><pre class="codeinput">audioLength = 5;
+</pre><h2 id="4">Iterate over classes and folds</h2><pre class="codeinput"><span class="keyword">for</span> i = 1:2<span class="comment">%length(classes)</span>
+    <span class="comment">% the data is divided in 5 folds, identified by the first number of</span>
+    <span class="comment">% their names</span>
+    <span class="keyword">for</span> fold = 1:5
+</pre><h2 id="5">Read the data</h2><pre class="codeinput">        files = dir(fullfile(<span class="string">'ESC-50'</span>,classes(i).name,strcat(int2str(fold),<span class="string">'*.ogg'</span>)));
+        <span class="keyword">for</span> j = 1:length(files)
+            <span class="comment">% extract audio data</span>
+            [soundData{j},fs{j}] = audioread(fullfile(<span class="string">'ESC-50'</span>,classes(i).name,files(j).name));
+        <span class="keyword">end</span>
+</pre><h2 id="6">Create the folders for storing the spectrograms</h2><pre class="codeinput">        <span class="keyword">if</span> ~exist(fullfile(<span class="string">'originalSpectrograms'</span>,int2str(fold),classes(i).name),<span class="string">'dir'</span>)
+            mkdir(fullfile(<span class="string">'originalSpectrograms'</span>,int2str(fold),classes(i).name));
+        <span class="keyword">end</span>
+        testFolder = fullfile(<span class="string">'originalSpectrograms'</span>,int2str(fold),classes(i).name);
+        <span class="keyword">if</span> ~exist(testFolder,<span class="string">'dir'</span>)
+            mkdir(testFolder)
+        <span class="keyword">end</span>
+</pre><h2 id="7">Generate and save the spectrograms</h2><pre class="codeinput">        originalSpectrograms = generateSpectrogram(soundData,fs,audioLength,<span class="string">'gammatonegram'</span>);
+        <span class="keyword">for</span> sample = 1:length(files)
+            im = originalSpectrograms{sample};
+            <span class="comment">% the values of the spectrogram are linarly rescaled to 0-255 by mapping</span>
+            <span class="comment">% the pixels with intensity M and m respectively to 255 and 0.</span>
+            M = max(im(:));
+            m = max(min(im(:)),-300);
+            im = uint8((im - m) * 255 / (M - m));
+            imwrite(im,fullfile(testFolder,strcat(int2str(sample),<span class="string">'.jpg'</span>)));
+        <span class="keyword">end</span>
+</pre><pre class="codeinput">    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Extract spectrograms from original data
+% This script creates the spectrograms of the audio files of the ESC-50
+% dataset for audio classification.
+%
+% This script creates the spectrograms of the raw audio samples and
+% splits them into 5 folders, one for every fold. Each one of these folders
+% contain 50 subfolders, one for every class.
+%
+% The orignal audio files must be included in a folder name ESC-50 that can
+% be downloaded at https://github.com/karolpiczak/ESC-50.
+%
+% The spectrograms are saved in a new folder named originalSpectrograms.
+
+
+%% Create the folders if they do not already exist
+clear
+d = dir('ESC-50');
+if ~exist('originalSpectrograms','dir')
+    mkdir('originalSpectrograms')
+end
+if ~exist(fullfile('originalSpectrograms','1'),'dir')
+    mkdir(fullfile('originalSpectrograms','1'))
+    mkdir(fullfile('originalSpectrograms','2'))
+    mkdir(fullfile('originalSpectrograms','3'))
+    mkdir(fullfile('originalSpectrograms','4'))
+    mkdir(fullfile('originalSpectrograms','5'))
+end
+
+%% select the folders that contain the data
+classes = d([d(:).isdir]==1);
+classes = classes(~ismember({classes(:).name},{'.','..'}));
+
+%% Set the hyperparameters for rescaling the spectrograms
+% the audio signal is cut or padded to be audioLength seconds long.
+audioLength = 5;
+
+%% Iterate over classes and folds
+for i = 1:2%length(classes)
+    % the data is divided in 5 folds, identified by the first number of
+    % their names
+    for fold = 1:5
+        %% Read the data
+        files = dir(fullfile('ESC-50',classes(i).name,strcat(int2str(fold),'*.ogg')));
+        for j = 1:length(files)
+            % extract audio data
+            [soundData{j},fs{j}] = audioread(fullfile('ESC-50',classes(i).name,files(j).name));
+        end
+        %% Create the folders for storing the spectrograms
+        if ~exist(fullfile('originalSpectrograms',int2str(fold),classes(i).name),'dir')
+            mkdir(fullfile('originalSpectrograms',int2str(fold),classes(i).name));
+        end
+        testFolder = fullfile('originalSpectrograms',int2str(fold),classes(i).name);
+        if ~exist(testFolder,'dir')
+            mkdir(testFolder)
+        end
+        %% Generate and save the spectrograms
+        originalSpectrograms = generateSpectrogram(soundData,fs,audioLength,'gammatonegram');
+        for sample = 1:length(files)
+            im = originalSpectrograms{sample};
+            % the values of the spectrogram are linarly rescaled to 0-255 by mapping 
+            % the pixels with intensity M and m respectively to 255 and 0.
+            M = max(im(:));
+            m = max(min(im(:)),-300);
+            im = uint8((im - m) * 255 / (M - m));
+            imwrite(im,fullfile(testFolder,strcat(int2str(sample),'.jpg')));
+        end
+    end
+end
+##### SOURCE END #####
+--></body></html>

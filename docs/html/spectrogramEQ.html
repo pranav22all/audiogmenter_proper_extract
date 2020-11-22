@@ -1,0 +1,152 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>spectrogramEQ.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-11-28"><meta name="DC.source" content="spectrogramEQ.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>spectrogramEQ.m</h1><pre class="codeinput"><span class="keyword">function</span> IM = spectrogramEQ(IM,f0,fmax,gain,Q)
+<span class="comment">% SPECTROGRAMEQ simulates an effect similar to the one</span>
+<span class="comment">%produced by an equalizer on a spectrogram.</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   IM: spectrogram</span>
+<span class="comment">%</span>
+<span class="comment">%   f0: center frequency of the equalization (in relation to fmax)</span>
+<span class="comment">%</span>
+<span class="comment">%   fmax: maximum frequency represented in the spectrogram</span>
+<span class="comment">%</span>
+<span class="comment">%   gain: gain to apply in f0</span>
+<span class="comment">%</span>
+<span class="comment">%   Q: quality factor</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   IM = equalized spectrogram</span>
+<span class="comment">%</span>
+<span class="comment">%   NOTE: if the BW is too large for the choosen f0 it will be reduced</span>
+<span class="keyword">if</span> f0 &gt; fmax
+    error(<span class="string">'f0 must be &lt;= fmax'</span>)
+<span class="keyword">end</span>
+A = size(IM,1);
+B = size(IM,2);
+C = size(IM,3);
+<span class="comment">%The brandwidth in Hz is BW = f0/Q</span>
+BW = ((f0/Q)/fmax)*A; <span class="comment">%Brandwidth in pixel</span>
+f0 = round(f0 * A/fmax);
+<span class="keyword">if</span> f0 + BW/2 &gt; A || f0 - BW/2 &lt; 1
+    BW(1) = min((A-f0)*2, f0*2-1);
+<span class="keyword">end</span>
+f1 = f0 - floor(BW/2);
+f2 = f0 + floor(BW/2);
+gainsArray = single(linspace(1,gain,BW/2+1));
+gainsArray = repmat(gainsArray(1:end-1)',1,B,C);
+IM(f0,:,:,:) = IM(f0,:,:,:) + gain;
+IM(f1:f1+floor(BW/2)-1,:,:,:) = IM(f1:f1+floor(BW/2)-1,:,:,:) + gainsArray;
+IM(f2-floor(BW/2)+1:f2,:,:) = IM(f2-floor(BW/2)+1:f2,:,:) + flipud(gainsArray);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% spectrogramEQ.m
+
+function IM = spectrogramEQ(IM,f0,fmax,gain,Q)
+% SPECTROGRAMEQ simulates an effect similar to the one
+%produced by an equalizer on a spectrogram.
+%
+%   Input
+%   IM: spectrogram
+%
+%   f0: center frequency of the equalization (in relation to fmax)
+%
+%   fmax: maximum frequency represented in the spectrogram
+%
+%   gain: gain to apply in f0
+%
+%   Q: quality factor
+%
+%   Output
+%   IM = equalized spectrogram
+%
+%   NOTE: if the BW is too large for the choosen f0 it will be reduced
+if f0 > fmax
+    error('f0 must be <= fmax')
+end
+A = size(IM,1);
+B = size(IM,2);
+C = size(IM,3);
+%The brandwidth in Hz is BW = f0/Q
+BW = ((f0/Q)/fmax)*A; %Brandwidth in pixel
+f0 = round(f0 * A/fmax);
+if f0 + BW/2 > A || f0 - BW/2 < 1
+    BW(1) = min((A-f0)*2, f0*2-1);
+end
+f1 = f0 - floor(BW/2);
+f2 = f0 + floor(BW/2);
+gainsArray = single(linspace(1,gain,BW/2+1));
+gainsArray = repmat(gainsArray(1:end-1)',1,B,C);
+IM(f0,:,:,:) = IM(f0,:,:,:) + gain;
+IM(f1:f1+floor(BW/2)-1,:,:,:) = IM(f1:f1+floor(BW/2)-1,:,:,:) + gainsArray;
+IM(f2-floor(BW/2)+1:f2,:,:) = IM(f2-floor(BW/2)+1:f2,:,:) + flipud(gainsArray);
+end
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>applySpectrogramRandomShifts.m</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-03-28"><meta name="DC.source" content="applySpectrogramRandomShifts.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>applySpectrogramRandomShifts.m</h1><pre class="codeinput"><span class="keyword">function</span> [newImages,newY] = applySpectrogramRandomShifts(trainingImages,parameter,y)
+<span class="comment">% APPLYSPECTROGRAMRANDOMSHIFTS generates a new set of images by applying a random</span>
+<span class="comment">%   shift (both in time and pitch) to the originals images. First, each</span>
+<span class="comment">%   spectrogram is split in two parts along its vertical dimension and the</span>
+<span class="comment">%   two parts are swapped. Then, the same procedure is applied to the</span>
+<span class="comment">%   horizontal dimension. The amount of the time and pitch shifts is</span>
+<span class="comment">%   randomly picked from the ranges timeShift and pitchShift.</span>
+<span class="comment">%</span>
+<span class="comment">%   [newImages,newY] = spectrogramRandomShifts(trainingImages,y,n,varargin)</span>
+<span class="comment">%</span>
+<span class="comment">%   Input</span>
+<span class="comment">%   trainingImages: input images organized as cell array</span>
+<span class="comment">%</span>
+<span class="comment">%   y: labels of trainingImages (optional)</span>
+<span class="comment">%</span>
+<span class="comment">%   n: number of shift per image (factor of generated images)</span>
+<span class="comment">%</span>
+<span class="comment">%   %   parameter: parameters for image interpolation before warping</span>
+<span class="comment">%   -time: min and max values for time shift represented as [min max]</span>
+<span class="comment">%   -pitch: min and max values for pitch shift represented as [min max]</span>
+<span class="comment">%</span>
+<span class="comment">%   Output</span>
+<span class="comment">%   newImages: image set of shifted images (not including original images)</span>
+<span class="comment">%</span>
+<span class="comment">%   newY: labels of newImages</span>
+
+<span class="keyword">if</span> nargin&lt;3
+    y={};
+<span class="keyword">end</span>
+<span class="comment">%default values</span>
+<span class="keyword">if</span> nargin&lt;2
+    parameter = struct();
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isfield(parameter,<span class="string">'timeShift'</span>)==0
+    parameter.timeShift = [0,0];
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isfield(parameter,<span class="string">'pitchShift'</span>)==0
+    parameter.pitchShift = [0,0];
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isa(trainingImages,<span class="string">'cell'</span>)
+    d = length(trainingImages);
+    newImages = cell(1,d); <span class="comment">%preallocation</span>
+    isSingle = false;
+<span class="keyword">else</span>
+    d  = 1;
+    isSingle = true;
+    trainingImages = {trainingImages};
+<span class="keyword">end</span>
+
+newImages = cell(1,d); <span class="comment">%preallocation</span>
+newY = y;
+<span class="keyword">parfor</span> i = 1:d
+    IM = trainingImages{i};
+    randPitchShift = parameter.pitchShift(1) + rand() * (parameter.pitchShift(2)-parameter.pitchShift(1));
+    newImages{i} = spectrogramShift(spectrogramShift(IM,randi(parameter.timeShift),<span class="string">'time'</span>),randPitchShift,<span class="string">'pitch'</span>);
+<span class="keyword">end</span>
+
+<span class="keyword">if</span> isSingle
+    newImages = newImages{1};
+<span class="keyword">end</span>
+
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% applySpectrogramRandomShifts.m
+
+function [newImages,newY] = applySpectrogramRandomShifts(trainingImages,parameter,y)
+% APPLYSPECTROGRAMRANDOMSHIFTS generates a new set of images by applying a random
+%   shift (both in time and pitch) to the originals images. First, each
+%   spectrogram is split in two parts along its vertical dimension and the
+%   two parts are swapped. Then, the same procedure is applied to the
+%   horizontal dimension. The amount of the time and pitch shifts is
+%   randomly picked from the ranges timeShift and pitchShift.
+%
+%   [newImages,newY] = spectrogramRandomShifts(trainingImages,y,n,varargin)
+%
+%   Input
+%   trainingImages: input images organized as cell array
+%
+%   y: labels of trainingImages (optional)
+%
+%   n: number of shift per image (factor of generated images)
+%
+%   %   parameter: parameters for image interpolation before warping
+%   -time: min and max values for time shift represented as [min max]
+%   -pitch: min and max values for pitch shift represented as [min max]
+%
+%   Output
+%   newImages: image set of shifted images (not including original images)
+%
+%   newY: labels of newImages
+
+if nargin<3
+    y={};
+end
+%default values
+if nargin<2
+    parameter = struct();
+end
+
+if isfield(parameter,'timeShift')==0
+    parameter.timeShift = [0,0];
+end
+
+if isfield(parameter,'pitchShift')==0
+    parameter.pitchShift = [0,0];
+end
+
+if isa(trainingImages,'cell')
+    d = length(trainingImages);
+    newImages = cell(1,d); %preallocation
+    isSingle = false;
+else
+    d  = 1;
+    isSingle = true;
+    trainingImages = {trainingImages};
+end
+
+newImages = cell(1,d); %preallocation
+newY = y;
+parfor i = 1:d
+    IM = trainingImages{i};
+    randPitchShift = parameter.pitchShift(1) + rand() * (parameter.pitchShift(2)-parameter.pitchShift(1));
+    newImages{i} = spectrogramShift(spectrogramShift(IM,randi(parameter.timeShift),'time'),randPitchShift,'pitch');
+end
+
+if isSingle
+    newImages = newImages{1};
+end
+
+end
+##### SOURCE END #####
+--></body></html>
